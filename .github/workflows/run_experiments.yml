@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        library: ${{ fromJson(needs.setup.outputs.repos) }}
+        repo: ${{ fromJson(needs.setup.outputs.repos) }}
     steps:      
       - name: Checkout github repo (+ download lfs dependencies)
         uses: actions/checkout@v3
@@ -59,85 +59,25 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          python setup.py develop
-      
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
-      - name: Run example update with no sources
-        if: ${{ github.event.inputs.useModelOnly == 'true' }}
-        env:
-          OPENAI_API_KEY: "${{ secrets.OPENAI_API_KEY }}"
-          OPENAI_ORG: "${{ secrets.OPENAI_ORG }}"
-          GPT4_ENDPOINT: ${{ secrets.GPT4_ENDPOINT }}
-          GPT4_AUTH_HEADERS: ${{ secrets.GPT4_AUTH_HEADERS }}
+      - name: Checkout target repo
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ matrix.repo.name }}
+          ref: ${{ matrix.repo.sha }}
+          path: "target_repo"
+
+      - name: Find frequently modified functions
         run: |
-          library_name=${{ matrix.library.name }}
+          repo_name=${{ matrix.repo.name }}
           curr_dir=`pwd`
-          outputdir="$curr_dir/results/$library_name/modelonly"
+          outputdir="$curr_dir/results/${{ matrix.repo.language }}/$repo_name"
           mkdir -p $outputdir 
           python src/soretrieval/fix_lib_examples.py \
-            --libpath ${{ matrix.library.path }} \
+            --path target_repo \
             --outputDir $outputdir \
-            --dbsource modelonly \
-            --threshold ${{ needs.setup.outputs.threshold }} \
-            --model ${{ needs.setup.outputs.model }} \
-
-      - name: Run example update with doc sources
-        if: ${{ needs.setup.outputs.useDoc == 'true' }}
-        env:
-          OPENAI_API_KEY: "${{ secrets.OPENAI_API_KEY }}"
-          OPENAI_ORG: "${{ secrets.OPENAI_ORG }}"
-          GPT4_ENDPOINT: ${{ secrets.GPT4_ENDPOINT }}
-          GPT4_AUTH_HEADERS: ${{ secrets.GPT4_AUTH_HEADERS }}
-        run: |
-          library_name=${{ matrix.library.name }}
-          curr_dir=`pwd`
-          outputdir="$curr_dir/results/$library_name/doc"
-          mkdir -p $outputdir 
-          python src/soretrieval/fix_lib_examples.py \
-            --libpath ${{ matrix.library.path }} \
-            --outputDir $outputdir \
-            --dbsource doc \
-            --threshold ${{ needs.setup.outputs.threshold }} \
-            --model ${{ needs.setup.outputs.model }} \
-
-      - name: Run example update with SO sources
-        if: ${{ github.event.inputs.useStackOverflow == 'true' }}
-        env:
-          OPENAI_API_KEY: "${{ secrets.OPENAI_API_KEY }}"
-          OPENAI_ORG: "${{ secrets.OPENAI_ORG }}"
-          GPT4_ENDPOINT: ${{ secrets.GPT4_ENDPOINT }}
-          GPT4_AUTH_HEADERS: ${{ secrets.GPT4_AUTH_HEADERS }}
-        run: |
-          library_name=${{ matrix.library.name }}
-          curr_dir=`pwd`
-          outputdir="$curr_dir/results/$library_name/so"
-          mkdir -p $outputdir 
-          python src/soretrieval/fix_lib_examples.py \
-            --libpath ${{ matrix.library.path }} \
-            --outputDir $outputdir \
-            --dbsource so \
-            --threshold ${{ needs.setup.outputs.threshold }} \
-            --model ${{ needs.setup.outputs.model }} \
-
-      - name: Run example update with so + doc sources
-        if: ${{ github.event.inputs.useCombined == 'true' }}
-        env:
-          OPENAI_API_KEY: "${{ secrets.OPENAI_API_KEY }}"
-          OPENAI_ORG: "${{ secrets.OPENAI_ORG }}"
-        run: |
-          library_name=${{ matrix.library.name }}
-          curr_dir=`pwd`
-          outputdir="$curr_dir/results/$library_name/combined"
-          mkdir -p $outputdir 
-          python src/soretrieval/fix_lib_examples.py \
-            --libpath ${{ matrix.library.path }} \
-            --outputDir $outputdir \
-            --dbsource combined \
-            --threshold ${{ needs.setup.outputs.threshold }} \
-            --model ${{ needs.setup.outputs.model }} \
+            --topn ${{ needs.setup.outputs.topn }} \
+            --language ${{ matrix.repo.language }}
 
       - name: Zip up results
         run: |
@@ -146,7 +86,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: results-${{ matrix.library.name }}
+          name: results-${{ matrix.repo.name }}
           path: "results.zip"
 
   combine_output:
@@ -186,25 +126,12 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          python setup.py develop
 
       - name: Download artifacts for this run
         uses: actions/download-artifact@v3
         with:
           name: results-all
           path: results
-      
-      - name: Download artifacts for comparison run
-        if: ${{ github.event.inputs.compareTo != '' }}
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          run_number: ${{ github.event.inputs.compareTo }}
-          name: results-all
-          path: baseline
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
       - name: Generate report
         run: |
