@@ -1,7 +1,6 @@
 import os
 import logging as log
 import json
-import jsonpickle
 
 def get_repos():
     repos = {}
