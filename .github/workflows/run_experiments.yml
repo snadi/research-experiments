@@ -38,10 +38,6 @@ jobs:
           echo "repos=$repos" >> $GITHUB_OUTPUT
           echo "$repos"
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
-
   benchmark:
     needs:
       - setup
@@ -71,6 +67,11 @@ jobs:
           repository: ${{ matrix.repo.name }}
           ref: ${{ matrix.repo.sha }}
           path: "target_repo"
+      
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
       - name: Find frequently modified functions
         run: |
