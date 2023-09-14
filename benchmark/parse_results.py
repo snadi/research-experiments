@@ -39,10 +39,12 @@ def plot_lang_chart(lang_dir):
 
     # Create a boxplot
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.boxplot(repo_counts.values(), vert=False)
-    ax.set_yticklabels(repo_counts.keys())
-    ax.set_xlabel('Count')
-    ax.set_title('Distribution of Counts by Repository')
+    ax.boxplot(repo_counts.values())
+    ax.set_xticklabels(repo_counts.keys(), rotation=45)
+    ax.set_ylabel('Count')
+    ax.set_title(f"Distribution of Frequently Modifed Functions in {lang_dir} repositories")
+
+    plt.tight_layout()
 
     plt.show()
 

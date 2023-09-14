@@ -46,13 +46,13 @@ def main():
 
     modified_functions = get_modified_functions(args.path, args.lastcommit, args.language) 
 
-    sorted_modified_functions = sorted(modified_functions.items(), key=lambda x: x[1], reverse=True)
-    topn_modified_functions = sorted_modified_functions[:topn]
-    topn_modified_functions = [{'function': x[0], 'count': x[1]} for x in topn_modified_functions]
+    # sorted_modified_functions = sorted(modified_functions.items(), key=lambda x: x[1], reverse=True)
+    # topn_modified_functions = sorted_modified_functions[:topn]
+    # topn_modified_functions = [{'function': x[0], 'count': x[1]} for x in topn_modified_functions]
 
     output_file = os.path.join(args.outputdir, "output.json")
     with open(output_file, "w") as outfile:
-        outfile.write(json.dumps(topn_modified_functions, indent=4, sort_keys=False))
+        outfile.write(json.dumps(modified_functions, indent=4, sort_keys=False))
     
 if __name__ == "__main__":
     main()

@@ -1,2 +1,2 @@
 git@github.com:checkstyle/checkstyle.git#c2e65aa2e9f6854f3902c8c018301ba97e8a1706
-git@github.com:JetBrains-Research/RefactorInsight.git#d6716a24fd53e9b5b3fcaccb14d64f4ba32a6979
+git@github.com:tsantalis/RefactoringMiner.git#203573314a0db9dc3ca7cb24510a029117bce5a7
