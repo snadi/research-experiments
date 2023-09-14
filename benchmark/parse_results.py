@@ -2,53 +2,20 @@ import os
 import argparse
 import pandas as pd
 import json
-import matplotlib.pyplot as plt
+import numpy as np
 
-def plot_lang_chart(lang_dir):
+def analyze_repo(repo_dir):
 
-    # Initialize a dictionary to store repo counts
-    repo_counts = {}
+   
+    data_file_path = os.path.join(repo_dir, "output.json")
+                  
+    with open(data_file_path, "r") as data_file:
+        data = json.load(data_file)
 
-    # Loop through directories in the data directory
-    for repo_dir in os.listdir(lang_dir):
-        # Check if the entry is a directory
-        if os.path.isdir(os.path.join(lang_dir, repo_dir)):
-            # Construct the path to the data JSON file
-            data_file_path = os.path.join(lang_dir, repo_dir, "output.json")
-            
-            # Check if the data file exists
-            if os.path.exists(data_file_path):
-                # Read the data from the JSON file
-                with open(data_file_path, "r") as data_file:
-                    data = json.load(data_file)
-                
+    median_count = np.median([x["count"] for x in data])
 
-                repo_info_file_path = os.path.join(lang_dir, repo_dir, "repo_info.json")
-                
-                with open(repo_info_file_path, "r") as repo_info_file:
-                    repo_info = json.load(repo_info_file)
-                repo_name = repo_info['simplename']
-            
-                
-                # Organize data by repository
-                if repo_name not in repo_counts:
-                    repo_counts[repo_name] = []
-                
-                for item in data:
-                    repo_counts[repo_name].append(item["count"])
-
-    # Create a boxplot
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.boxplot(repo_counts.values())
-    ax.set_xticklabels(repo_counts.keys(), rotation=45)
-    ax.set_ylabel('Count')
-    ax.set_title(f"Distribution of Frequently Modifed Functions in {lang_dir} repositories")
-
-    plt.tight_layout()
-
-    plt.show()
-
-
+    return f"{median_count:.2f}"
+      
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Parse and display reports')
@@ -57,8 +24,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
     outputdir = args.outputdir
 
+    print(f"# Results Overview")
+    print(f"| Lang | Repo | Median modification count|")
+    print(f"| --- | --: | --: |")
+
     for lang in ['java', 'python']:
         lang_dir = os.path.join(args.outputdir, lang)
-            
-        plot_lang_chart(lang_dir)
+        
+        for repo in os.listdir(lang_dir):
+            repo_dir = os.path.join(lang_dir, repo)
+            print(f"| {lang} | {repo} | {analyze_repo(repo_dir)} |")
 
