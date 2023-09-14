@@ -24,5 +24,5 @@ def parse_repo_file(repo_file):
 if __name__ == "__main__":
     libraries = get_repos()
 
-    print(json.dumps(libraries, indent=4, sort_keys=True))
+    print(json.dumps(libraries))
     
