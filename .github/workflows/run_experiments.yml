@@ -65,7 +65,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: ${{ matrix.repo.name }}
-          ref: ${{ matrix.repo.commit }}
           path: "target_repo"
           fetch-depth: 0 # fetch all history so we can parse it (normally not needed if you care about analyzing repo at a certain point)
       
@@ -84,6 +83,7 @@ jobs:
             --path target_repo \
             --outputdir $outputdir \
             --topn ${{ needs.setup.outputs.topn }} \
+            --lastcommit ${{ matrix.repo.commit }} \
             --language ${{ matrix.repo.language }}
 
       - name: Zip up results

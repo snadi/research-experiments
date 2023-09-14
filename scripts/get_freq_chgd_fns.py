@@ -9,12 +9,12 @@ lang_extensions={
     'java': '.java',
 }
 
-def get_modified_functions(repo_path, branch, lang):
+def get_modified_functions(repo_path, lastcommit, lang):
     modified_functions = {}
 
     commits = Repository(
         repo_path, 
-        only_in_branch=branch,
+        to_commit=lastcommit,
         only_modifications_with_file_types=[lang_extensions[lang]], 
         since=datetime(2023, 8, 1)
     ).traverse_commits()
@@ -37,16 +37,14 @@ def main():
     parser.add_argument('--path', help='path to the repository')
     parser.add_argument('--language', help='language of the repository')
     parser.add_argument('--topn', help='top n modified functions')
+    parser.add_argument('--lastcommit', help='the last commit to be considered when analyzing the history')
     parser.add_argument('--outputdir', help='directory where the output file will be stored')
     args = parser.parse_args()
 
     topn = int(args.topn)
 
-    try:
-        modified_functions = get_modified_functions(args.path, 'master', args.language)
-    except:
-        modified_functions = get_modified_functions(args.path, 'main', args.language)
-    
+
+    modified_functions = get_modified_functions(args.path, args.lastcommit, args.language) 
 
     sorted_modified_functions = sorted(modified_functions.items(), key=lambda x: x[1], reverse=True)
     topn_modified_functions = sorted_modified_functions[:topn]
