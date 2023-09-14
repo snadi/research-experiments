@@ -9,33 +9,16 @@ lang_extensions={
     'java': '.java',
 }
 
-def main():
-    parser = ArgumentParser()
-    parser.add_argument('--path', help='path to the repository')
-    parser.add_argument('--language', help='language of the repository')
-    parser.add_argument('--topn', help='top n modified functions')
-    parser.add_argument('--outputdir', help='directory where the output file will be stored')
-    args = parser.parse_args()
-
-    topn = int(args.topn)
-
+def get_modified_functions(repo_path, branch, lang):
     modified_functions = {}
 
-    try:
-        commits = Repository(
-            args.path, 
-            only_in_branch='master',
-            only_modifications_with_file_types=[lang_extensions[args.language]], 
-            since=datetime(2023, 1, 1)
-        ).traverse_commits()
-    except:
-        # if master branch does not exist, use main branch
-        commits = Repository(
-            args.path, 
-            only_in_branch='main',
-            only_modifications_with_file_types=[lang_extensions[args.language]], 
-            since=datetime(2023, 1, 1)
-        ).traverse_commits()
+    commits = Repository(
+        repo_path, 
+        only_in_branch='master',
+        only_modifications_with_file_types=[lang_extensions[lang]], 
+        since=datetime(2023, 8, 1)
+    ).traverse_commits()
+  
 
     for commit in commits:
         for modified_file in commit.modified_files:
@@ -47,7 +30,23 @@ def main():
                 else:
                     modified_functions[method_path] += 1
 
-    # get top n modified functions in json format
+    return modified_functions
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument('--path', help='path to the repository')
+    parser.add_argument('--language', help='language of the repository')
+    parser.add_argument('--topn', help='top n modified functions')
+    parser.add_argument('--outputdir', help='directory where the output file will be stored')
+    args = parser.parse_args()
+
+    topn = int(args.topn)
+
+    try:
+        modified_functions = get_modified_functions(args.path, 'master', args.language)
+    except:
+        modified_functions = get_modified_functions(args.path, 'main', args.language)
+    
 
     sorted_modified_functions = sorted(modified_functions.items(), key=lambda x: x[1], reverse=True)
     topn_modified_functions = sorted_modified_functions[:topn]
