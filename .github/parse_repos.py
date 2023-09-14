@@ -19,7 +19,8 @@ def parse_repo_file(repo_file, lang):
             reponame, commit = line.strip().split('#')
             reponame = reponame.split(':')[-1]
             reponame = reponame.split('.git')[0]
-            repos.append({"name": reponame, "commit": commit, "language": lang})          
+            simplename = reponame.replace('/', '#')
+            repos.append({"ghname": reponame, "simplename":simplename, "commit": commit, "language": lang})          
     return repos
 
 if __name__ == "__main__":

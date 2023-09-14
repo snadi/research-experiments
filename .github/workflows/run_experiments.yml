@@ -64,7 +64,7 @@ jobs:
       - name: Checkout target repo
         uses: actions/checkout@v3
         with:
-          repository: ${{ matrix.repo.name }}
+          repository: ${{ matrix.repo.ghname }}
           path: "target_repo"
           fetch-depth: 0 # fetch all history so we can parse it (normally not needed if you care about analyzing repo at a certain point)
       
@@ -75,7 +75,7 @@ jobs:
 
       - name: Find frequently modified functions
         run: |
-          repo_name=${{ matrix.repo.name }}
+          repo_name=${{ matrix.repo.simplename }}
           curr_dir=`pwd`
           outputdir="$curr_dir/results/${{ matrix.repo.language }}/$repo_name"
           mkdir -p $outputdir 
@@ -93,7 +93,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: results-${{ matrix.repo.name }}
+          name: results-${{ matrix.repo.simplename }}
           path: "results.zip"
 
   combine_output:
@@ -145,11 +145,4 @@ jobs:
           cd results
           unzip results.zip
           cd ..
-          if [ -d baseline ]; then
-            cd baseline
-            unzip results.zip
-            cd .. 
-            python ${GITHUB_WORKSPACE}/src/benchmark/parse_reports.py --outputdir results/results --baselinedir baseline/results > $GITHUB_STEP_SUMMARY
-          else
-            python ${GITHUB_WORKSPACE}/src/benchmark/parse_reports.py --outputdir results/results > $GITHUB_STEP_SUMMARY
-          fi
+          python ${GITHUB_WORKSPACE}/src/benchmark/parse_reports.py --outputdir results/results > $GITHUB_STEP_SUMMARY
