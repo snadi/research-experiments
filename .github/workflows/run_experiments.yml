@@ -152,4 +152,4 @@ jobs:
           cd results
           unzip results.zip
           cd ..
-          python ${GITHUB_WORKSPACE}/src/benchmark/parse_reports.py --outputdir results/results > $GITHUB_STEP_SUMMARY
+          python ${GITHUB_WORKSPACE}/benchmark/parse_results.py --outputdir results/results > $GITHUB_STEP_SUMMARY
