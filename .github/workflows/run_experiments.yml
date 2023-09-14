@@ -80,7 +80,7 @@ jobs:
           mkdir -p $outputdir 
           python scripts/get_freq_chgd_fns.py \
             --path target_repo \
-            --outputDir $outputdir \
+            --outputdir $outputdir \
             --topn ${{ needs.setup.outputs.topn }} \
             --language ${{ matrix.repo.language }}
 
