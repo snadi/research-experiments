@@ -5,15 +5,16 @@ import numpy as np
 
 def analyze_repo(repo_dir):
 
-   
     data_file_path = os.path.join(repo_dir, "output.json")
                   
     with open(data_file_path, "r") as data_file:
         data = json.load(data_file)
 
-    median_count = np.median([x["count"] for x in data])
+    median_count = np.median(list(data.values()))
+    max_count = np.max(list(data.values()))
+    min_count = np.min(list(data.values()))
 
-    return f"{median_count:.2f}"
+    return f"{len(data.values())}| {median_count:.2f}|{min_count}|{max_count}"
       
 
 if __name__ == "__main__":
@@ -24,8 +25,8 @@ if __name__ == "__main__":
     outputdir = args.outputdir
 
     print(f"# Results Overview")
-    print(f"| Lang | Repo | Median modification count|")
-    print(f"| --- | --: | --: |")
+    print(f"| Lang | Repo | Num Functions| Median modification count|Min modification count|Max modification count|")
+    print(f"| --- | --: | --: | --: | --: | --: |")
 
     for lang in ['java', 'python']:
         lang_dir = os.path.join(args.outputdir, lang)
