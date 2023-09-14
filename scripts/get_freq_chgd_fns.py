@@ -21,12 +21,22 @@ def main():
 
     modified_functions = {}
 
-    commits = Repository(
-        args.path, 
-        only_in_branch='master',
-        only_modifications_with_file_types=[lang_extensions[args.language]], 
-        since=datetime(2023, 1, 1)
-    ).traverse_commits()
+    try:
+        commits = Repository(
+            args.path, 
+            only_in_branch='master',
+            only_modifications_with_file_types=[lang_extensions[args.language]], 
+            since=datetime(2023, 1, 1)
+        ).traverse_commits()
+    except:
+        # if master branch does not exist, use main branch
+        commits = Repository(
+            args.path, 
+            only_in_branch='main',
+            only_modifications_with_file_types=[lang_extensions[args.language]], 
+            since=datetime(2023, 1, 1)
+        ).traverse_commits()
+
     for commit in commits:
         for modified_file in commit.modified_files:
             changed_methods = modified_file.changed_methods
