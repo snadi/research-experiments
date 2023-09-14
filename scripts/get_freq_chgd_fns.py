@@ -14,7 +14,7 @@ def get_modified_functions(repo_path, branch, lang):
 
     commits = Repository(
         repo_path, 
-        only_in_branch='master',
+        only_in_branch=branch,
         only_modifications_with_file_types=[lang_extensions[lang]], 
         since=datetime(2023, 8, 1)
     ).traverse_commits()
