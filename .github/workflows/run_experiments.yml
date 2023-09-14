@@ -67,6 +67,7 @@ jobs:
           repository: ${{ matrix.repo.name }}
           ref: ${{ matrix.repo.commit }}
           path: "target_repo"
+          fetch-depth: 0 # fetch all history so we can parse it (normally not needed if you care about analyzing repo at a certain point)
       
 
       - name: Setup tmate session
