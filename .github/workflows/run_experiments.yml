@@ -37,7 +37,7 @@ jobs:
           repos=$(python ${GITHUB_WORKSPACE}/.github/parse_repos.py)
           echo "repos=$repos" >> $GITHUB_OUTPUT
           echo "$repos"
-          
+
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
@@ -78,7 +78,7 @@ jobs:
           curr_dir=`pwd`
           outputdir="$curr_dir/results/${{ matrix.repo.language }}/$repo_name"
           mkdir -p $outputdir 
-          python src/soretrieval/fix_lib_examples.py \
+          python scripts/get_freq_chgd_fns.py \
             --path target_repo \
             --outputDir $outputdir \
             --topn ${{ needs.setup.outputs.topn }} \

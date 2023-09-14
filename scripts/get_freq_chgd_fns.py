@@ -2,6 +2,7 @@ from pydriller import Repository
 from argparse import ArgumentParser
 from datetime import datetime
 import json
+import os
 
 lang_extensions={
     'python': '.py',
@@ -13,6 +14,7 @@ def main():
     parser.add_argument('--path', help='path to the repository')
     parser.add_argument('--language', help='language of the repository')
     parser.add_argument('--topn', help='top n modified functions')
+    parser.add_argument('--outputdir', help='directory where the output file will be stored')
     args = parser.parse_args()
 
     topn = int(args.topn)
@@ -41,7 +43,8 @@ def main():
     topn_modified_functions = sorted_modified_functions[:topn]
     topn_modified_functions = [{'function': x[0], 'count': x[1]} for x in topn_modified_functions]
 
-    with open("output.json", "w") as outfile:
+    output_file = os.path.join(args.outputdir, "output.json")
+    with open(output_file, "w") as outfile:
         outfile.write(json.dumps(topn_modified_functions, indent=4, sort_keys=False))
     
 if __name__ == "__main__":
