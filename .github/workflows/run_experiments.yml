@@ -48,10 +48,8 @@ jobs:
       matrix:
         repo: ${{ fromJson(needs.setup.outputs.repos) }}
     steps:      
-      - name: Checkout github repo (+ download lfs dependencies)
+      - name: Checkout github repo
         uses: actions/checkout@v3
-        with:
-          lfs: true
 
       - uses: actions/setup-python@v4
         with:
