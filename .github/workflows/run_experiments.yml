@@ -1,4 +1,4 @@
-name: Run experiment for finding most frequently modified files
+name: Run experiment for finding most frequently modified functions
 
 on:
   workflow_dispatch:
